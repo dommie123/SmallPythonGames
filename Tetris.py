@@ -11,22 +11,10 @@ intToColor = [(0,0,0), (170, 200, 255), (0, 0, 255), (140, 90, 30), (255, 255, 0
 cells = []
 height = boardHeight
 
-# Populate cells with list of possible positions
-while height > 0:
-    width = boardWidth
-    while width > 0:
-        cells.append([width, height])
-        width -= 1
-    height -= 1
-
-# for debugging purposes
-for x in cells:
-    print(x)
-
 # This is an array of positions
 # Defined as activeCells[i] = [x,y]
 activeCells = []
-activeInt = 0
+activeInt = 1
 
 # This represents how fast the game goes in frames per second
 gameSpeed = 3
@@ -40,16 +28,16 @@ clock = pygame.time.Clock()
 #Create an empty array of size [boardWidth][boardHeight]
 def getEmptyBoard():
     global boardWidth, boardHeight
-    cells = []
-    height = boardHeight
+    cells = [[0 for x in range(boardHeight)] for y in range(boardWidth)]
+    wCounter = 0
 
     # Populate cells with list of possible positions
-    while height > 0:
-        width = boardWidth
-        while width > 0:
-            cells.append([width, height])
-            width -= 1
-        height -= 1
+    while wCounter < boardWidth:
+        hCounter = 0
+        while hCounter < boardHeight:
+            cells[wCounter][hCounter] = 0
+            hCounter += 1
+        wCounter += 1
     
     return cells
 
@@ -60,11 +48,12 @@ def createBoard():
     activeCells = []
     count = 4
     while count > 0:
-        activeCells.append([random.randint(1, boardWidth), random.randint(1, boardHeight)])
+        activeCells.append([random.randint(0, boardWidth - 1), random.randint(0, boardHeight - 1)])
         count -= 1
 
     for x in activeCells:
-        print(x)
+        cells[x[0]][x[1]] = activeInt
+        
 
 # Creates a new piece
 def genPiece():
@@ -72,13 +61,24 @@ def genPiece():
     
 def getActiveSquare():
     global activeCells
+    activeSquare = []
+    index = 0
+    for x in activeCells:
+        for y in activeCells:
+            if not(checkPositionEmpty(x, y)):
+                activeSquare.append(activeCells[index])
+            index += 1
+    if len(activeSquare != 4):
+        raise Exception("The active square cannot contain more or less than four units!")
+    else:
+        return activeSquare
 
 def rotateActive():
     global activeCells
 
 # Check if position [x][y] is empty in the cells 2D array
 def checkPositionEmpty(x, y):
-    return True
+    return cells[x][y] != activeInt
 
 # Move the activeCells into the cells 2D array and gen a new piece
 #def snapActive():
