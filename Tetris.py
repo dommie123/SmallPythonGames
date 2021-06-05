@@ -29,35 +29,69 @@ clock = pygame.time.Clock()
 def getEmptyBoard():
     global boardWidth, boardHeight
     cells = [[0 for x in range(boardHeight)] for y in range(boardWidth)]
-    wCounter = 0
-
-    # Populate cells with list of possible positions
-    while wCounter < boardWidth:
-        hCounter = 0
-        while hCounter < boardHeight:
-            cells[wCounter][hCounter] = 0
-            hCounter += 1
-        wCounter += 1
-    
     return cells
 
 # intitalize cells and activeCells to an empty board
 def createBoard():
     global cells, activeCells
     cells = getEmptyBoard()
-    activeCells = []
-    count = 4
-    while count > 0:
-        activeCells.append([random.randint(0, boardWidth - 1), random.randint(0, boardHeight - 1)])
-        count -= 1
+    # activeCells = []
+    # count = 4
+    # while count > 0:
+    #     activeCells.append([random.randint(0, boardWidth - 1), random.randint(0, boardHeight - 1)])
+    #     count -= 1
 
-    for x in activeCells:
-        cells[x[0]][x[1]] = activeInt
+    # for x in activeCells:
+    #     cells[x[0]][x[1]] = activeInt
         
+
+def updateActiveCells():
+    for cell in activeCells:
+        cells[cell[0], cell[1]] = activeInt
 
 # Creates a new piece
 def genPiece():
     global activeInt, activeCells
+    center = (boardWidth - 1) // 2
+    activeCells.append([0, center])
+    formation = random.randint(1, 7)
+    
+    # Formation 1 refers to the T shape
+    if formation == 1:
+        activeCells.append([0, center + 1])
+        activeCells.append([0, center - 1])
+        activeCells.append([1, center])
+    # Formation 2 refers to the S shape flipped on its side
+    elif formation == 2:
+        activeCells.append([1, center])
+        activeCells.append([1, center + 1])
+        activeCells.append([2, center + 1])
+    # Formation 3 refers to the Z shape flipped on its side
+    elif formation == 3:
+        activeCells.append([1, center])
+        activeCells.append([1, center - 1])
+        activeCells.append([2, center - 1])
+    # Formation 4 refers to the O shape (even though it's clearly a square and no one can convince me otherwise)
+    elif formation == 4:
+        activeCells.append([0, center + 1])
+        activeCells.append([1, center])
+        activeCells.append([1, center + 1])
+    # Formation 5 refers to the L shape
+    elif formation == 5:
+        activeCells.append([1, center])
+        activeCells.append([2, center])
+        activeCells.append([2, center + 1])
+    # Formation 6 refers to the J shape
+    elif formation == 6:
+        activeCells.append([1, center])
+        activeCells.append([2, center])
+        activeCells.append([2, center - 1])
+    # Formation 7 refers to the I shape (a.k.a, the best shape)
+    elif formation == 7:
+        for i in range(1, 3):
+            activeCells.append([i, center])
+    
+    updateActiveCells()
     
 def getActiveSquare():
     global activeCells
@@ -81,7 +115,11 @@ def checkPositionEmpty(x, y):
     return cells[x][y] != activeInt
 
 # Move the activeCells into the cells 2D array and gen a new piece
-#def snapActive():
+def snapActive():
+    global activeCells
+    for cell in activeCells:
+        cells[cell[0], cell[1]] = 2
+    genPiece()
 
 # Move all the activeCells down by one as long as they can all fall, if not, snapActive    
 def updateFall():
@@ -91,7 +129,6 @@ def updateFall():
 def updateRows():
     global cells, gameSpeed
         
-
 def drawGame():
     global cells, activeCells, blockSize, window, intToColor
     window.fill((0,0,0))
@@ -103,7 +140,6 @@ def drawGame():
                 
     pygame.display.update()
     
-
 def shiftActive(s):
     global activeCells, boardWidth
     newActiveCells = getEmptyBoard()
@@ -115,7 +151,6 @@ def shiftActive(s):
                 else:
                     return
     activeCells = newActiveCells
-
 
 def handleKeys():
     global running
@@ -133,7 +168,6 @@ def handleKeys():
             if event.key == pygame.K_UP:
                 rotateActive()
 
-
 def update():
     global gameSpeed, gameDelay
     handleKeys()
@@ -146,19 +180,17 @@ def update():
     clock.tick(60)
     gameDelay += 16
 
-    
+   
 def init():
     pygame.init()
     createBoard()
     genPiece()
-
 
 # Starts the Game
 def play():
     global running
     while running:
         update()
-
 
 init()
 play()
